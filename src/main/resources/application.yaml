@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: personal-finance-manager
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/my_loc_db
+    username: root
+    password: Viki@12345
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # Use 'create' for first time, then switch to 'update'
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+server:
+  port: 9006
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
