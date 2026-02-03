@@ -1,7 +1,6 @@
 package com.first.pfm.config;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -36,9 +35,9 @@ public class JwtUtil {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
         return Jwts.builder()
-                .subject(username)
-                .issuedAt(now)
-                .expiration(expiry)
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
                 .signWith(secretKey)
                 .compact();
     }
@@ -69,10 +68,10 @@ public class JwtUtil {
     }
 
     private Claims getClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
