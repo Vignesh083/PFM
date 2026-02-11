@@ -2,25 +2,25 @@ spring:
   application:
     name: personal-finance-manager
 
-# JWT (use env JWT_SECRET in production; must be at least 32 characters for HS256)
-jwt:
-  secret: ${JWT_SECRET:your-256-bit-secret-key-min-32-chars-for-hs256}
-  expiration-ms: ${JWT_EXPIRATION_MS:36000000}  # 10 hours default
-
   datasource:
-    url: jdbc:mysql://localhost:3306/my_loc_db
+    url: jdbc:mysql://localhost:3306/mydb?useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: Viki@12345
+    password: viki@12345
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update   # Use 'create' for first time, then switch to 'update'
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+# JWT (custom properties – OK to keep separate)
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-min-32-chars-for-hs256}
+  expiration-ms: ${JWT_EXPIRATION_MS:36000000}
 
 server:
   port: 9006
