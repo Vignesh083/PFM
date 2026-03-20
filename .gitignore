@@ -15,7 +15,8 @@ CLAUDE.md
 
 # Environment / secrets — NEVER commit these
 .env
-.env.*
+.env.local
+.env.*.local
 application-local.yaml
 
 # Frontend
