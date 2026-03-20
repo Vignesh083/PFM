@@ -1,0 +1,98 @@
+.cat-form { margin-bottom: 1.5rem; }
+
+.cat-form-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cat-form-row input {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.62rem 0.9rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.cat-form-row input:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
+  background: rgba(139,92,246,0.08);
+}
+
+.color-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.color-dot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s;
+}
+.color-dot:hover { transform: scale(1.2); }
+.color-dot.selected {
+  border-color: #fff;
+  transform: scale(1.25);
+  box-shadow: 0 0 10px currentColor;
+}
+
+.form-error {
+  margin-top: 0.5rem;
+  background: rgba(251,113,133,0.08);
+  color: var(--danger);
+  border: 1px solid rgba(251,113,133,0.25);
+  border-radius: 9px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.cat-section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 1.4rem 0 0.7rem;
+}
+
+.cat-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.cat-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid;
+  background: rgba(255,255,255,0.04);
+  font-size: 0.83rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.cat-chip:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-2px);
+}
+
+.cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.cat-delete {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0 0 0 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.cat-delete:hover { opacity: 1; }

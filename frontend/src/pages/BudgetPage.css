@@ -1,0 +1,102 @@
+.budget-section { margin-bottom: 1rem; }
+
+.section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.salary-form,
+.limit-form {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.salary-form input, .salary-form select,
+.limit-form input,  .limit-form select {
+  padding: 0.6rem 0.9rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.salary-form input:focus, .limit-form input:focus,
+.salary-form select:focus, .limit-form select:focus {
+  border-color: var(--violet);
+  background: rgba(139,92,246,0.08);
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
+}
+
+.salary-form input, .limit-form input { flex: 1; min-width: 150px; }
+.salary-form select option, .limit-form select option { background: #0e0e2a; }
+
+.salary-overview {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.salary-overview strong { color: var(--text-primary); }
+
+/* Comparison */
+.comparison-list { display: flex; flex-direction: column; gap: 1rem; }
+
+.cmp-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.cmp-name { flex: 1; font-size: 0.9rem; color: var(--text-primary); font-weight: 600; }
+.cmp-amounts { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+
+.cmp-pct {
+  font-size: 0.8rem;
+  font-weight: 800;
+  min-width: 40px;
+  text-align: right;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.cmp-pct.ok   { background: rgba(52,211,153,0.1); color: var(--success); border: 1px solid rgba(52,211,153,0.2); }
+.cmp-pct.warn { background: rgba(251,191,36,0.1); color: var(--warning); border: 1px solid rgba(251,191,36,0.2); }
+.cmp-pct.over { background: rgba(251,113,133,0.1); color: var(--danger);  border: 1px solid rgba(251,113,133,0.2); }
+
+.progress-track {
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.7s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 10px;
+  background: rgba(255,255,255,0.35);
+  filter: blur(2px);
+  border-radius: 999px;
+}

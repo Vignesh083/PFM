@@ -5,7 +5,6 @@ import com.first.pfm.config.MyUserDetailsService;
 import com.first.pfm.dto.AuthRequest;
 import com.first.pfm.model.User;
 import com.first.pfm.repository.UserRepository;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,7 +40,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("USER");
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole("ROLE_USER");
+        } else {
+            user.setRole("ROLE_" + user.getRole().toUpperCase());
+        }
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully");
     }
