@@ -1,9 +1,7 @@
 services:
   - type: web
     name: pfm-backend
-    runtime: java
-    buildCommand: mvn clean package -DskipTests
-    startCommand: java -jar target/*.jar
+    runtime: docker
     envVars:
       - key: PORT
         value: "10000"
