@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-  baseURL: import.meta.env.DEV ? 'http://localhost:9006' : 'https://pfm-q2kz.onrender.com',
+  baseURL: 'https://pfm-q2kz.onrender.com',
 });
 
 axiosClient.interceptors.request.use((config) => {
