@@ -11,10 +11,70 @@
   margin-bottom: 1rem;
 }
 
-.info-row { display: flex; gap: 1rem; align-items: center; }
-.info-label { font-size: 0.85rem; color: var(--text-muted); min-width: 100px; font-weight: 500; }
-.info-val   { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+/* ── Account info row ── */
+.info-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
 
+.info-label { font-size: 0.85rem; color: var(--text-muted); min-width: 100px; font-weight: 500; }
+.info-val   { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); flex: 1; }
+
+/* ── Edit username button ── */
+.edit-username-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.3rem 0.75rem;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.25);
+  border-radius: 8px;
+  color: var(--violet);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.edit-username-btn:hover {
+  background: rgba(139,92,246,0.2);
+  border-color: rgba(139,92,246,0.45);
+}
+
+/* ── Cooldown note ── */
+.cooldown-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.6rem;
+  line-height: 1.5;
+}
+
+.cooldown-note strong { color: var(--text-secondary); }
+
+/* ── Username edit form ── */
+.username-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.username-edit-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.char-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 3px;
+}
+
+/* ── Password form ── */
 .pw-form { display: flex; flex-direction: column; gap: 0.85rem; }
 
 .pw-group { display: flex; flex-direction: column; gap: 5px; }
@@ -27,8 +87,16 @@
   font-weight: 700;
 }
 
-.pw-group input {
-  padding: 0.68rem 1rem;
+/* ── Password input with eye toggle ── */
+.pw-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pw-input-wrap input {
+  width: 100%;
+  padding: 0.68rem 2.75rem 0.68rem 1rem;
   background: rgba(255,255,255,0.05);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -38,12 +106,31 @@
   font-family: inherit;
   transition: all 0.2s;
 }
-.pw-group input:focus {
+
+.pw-input-wrap input:focus {
   border-color: var(--violet);
   background: rgba(139,92,246,0.08);
   box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
 }
 
+.eye-toggle {
+  position: absolute;
+  right: 0.8rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.eye-toggle:hover { color: var(--text-primary); }
+
+/* ── Feedback messages ── */
 .form-error {
   background: rgba(251,113,133,0.08);
   color: var(--danger);

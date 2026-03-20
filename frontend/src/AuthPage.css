@@ -149,6 +149,35 @@
 
 .auth-form input::placeholder { color: var(--text-muted); }
 
+/* ── Password eye toggle ── */
+.pw-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pw-input-wrap input {
+  width: 100%;
+  padding-right: 2.75rem;
+}
+
+.eye-toggle {
+  position: absolute;
+  right: 0.8rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.eye-toggle:hover { color: var(--text-primary); }
+
 .msg {
   font-size: 0.82rem;
   border-radius: 8px;
