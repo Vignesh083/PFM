@@ -23,7 +23,7 @@ jwt:
   expiration-ms: ${JWT_EXPIRATION_MS:36000000}
 
 server:
-  port: 9006
+  port: ${PORT:9006}
 
 logging:
   level:
