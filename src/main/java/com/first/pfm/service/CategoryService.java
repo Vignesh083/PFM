@@ -6,6 +6,7 @@ import com.first.pfm.exception.ResourceNotFoundException;
 import com.first.pfm.model.Category;
 import com.first.pfm.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class CategoryService {
         return all.stream().map(this::toDto).toList();
     }
 
+    @Transactional
     public CategoryDto create(CategoryDto dto) {
         Long userId = securityUtils.getCurrentUser().getId();
         Category cat = new Category();
@@ -40,6 +42,7 @@ public class CategoryService {
         return toDto(categoryRepository.save(cat));
     }
 
+    @Transactional
     public CategoryDto update(Long id, CategoryDto dto) {
         Long userId = securityUtils.getCurrentUser().getId();
         Category cat = categoryRepository.findById(id)
@@ -53,6 +56,7 @@ public class CategoryService {
         return toDto(categoryRepository.save(cat));
     }
 
+    @Transactional
     public void delete(Long id) {
         Long userId = securityUtils.getCurrentUser().getId();
         Category cat = categoryRepository.findById(id)

@@ -12,6 +12,7 @@ export default function CategoriesPage() {
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const load = () => getCategories().then(r => setCategories(r.data)).finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
@@ -20,12 +21,15 @@ export default function CategoriesPage() {
     e.preventDefault();
     setError('');
     if (!name.trim()) { setError('Name is required'); return; }
+    setSubmitting(true);
     try {
       await createCategory({ name: name.trim(), color });
       setName(''); setColor(COLORS[0]); setShowForm(false);
       load();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create category');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -72,7 +76,9 @@ export default function CategoriesPage() {
                 />
               ))}
             </div>
-            <button type="submit" className="btn btn-primary">Save</button>
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting ? 'Saving…' : 'Save'}
+            </button>
           </div>
           {error && <p className="form-error">{error}</p>}
         </form>

@@ -19,8 +19,9 @@ export default function RecurringPage() {
   const [description, setDescription] = useState('');
   const [dayOfMonth, setDayOfMonth] = useState(1);
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const load = () => getRecurring().then(r => setItems(r.data)).catch(() => {});
+  const load = () => getRecurring().then(r => setItems(r.data)).catch(() => setItems([]));
 
   useEffect(() => {
     load();
@@ -33,6 +34,7 @@ export default function RecurringPage() {
   const handleCreate = async (e) => {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
     try {
       await createRecurring({
         categoryId: Number(categoryId),
@@ -45,6 +47,8 @@ export default function RecurringPage() {
       load();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to save');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -91,7 +95,9 @@ export default function RecurringPage() {
             <input type="text" value={description} onChange={e => setDescription(e.target.value)} placeholder="e.g. Netflix subscription" />
           </div>
           {error && <p className="form-error">{error}</p>}
-          <button type="submit" className="btn btn-primary">Save</button>
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? 'Saving…' : 'Save'}
+          </button>
         </form>
       )}
 

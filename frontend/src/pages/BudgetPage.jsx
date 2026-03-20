@@ -29,6 +29,8 @@ export default function BudgetPage() {
   const [limitInput, setLimitInput] = useState('');
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingLimit, setSavingLimit] = useState(false);
 
   const load = (showLoader = false) => {
     if (showLoader) setLoading(true);
@@ -43,18 +45,28 @@ export default function BudgetPage() {
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
-    await saveBudgetProfile({ monthlySalary: parseFloat(profile.monthlySalary), currency: profile.currency });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-    load(false);
+    setSavingProfile(true);
+    try {
+      await saveBudgetProfile({ monthlySalary: parseFloat(profile.monthlySalary), currency: profile.currency });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+      load(false);
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
   const handleSetLimit = async (e) => {
     e.preventDefault();
     if (!editCatId || !limitInput) return;
-    await setCategoryBudget(Number(editCatId), parseFloat(limitInput));
-    setEditCatId(''); setLimitInput('');
-    load();
+    setSavingLimit(true);
+    try {
+      await setCategoryBudget(Number(editCatId), parseFloat(limitInput));
+      setEditCatId(''); setLimitInput('');
+      load();
+    } finally {
+      setSavingLimit(false);
+    }
   };
 
   const handleRemoveLimit = async (categoryId) => {
@@ -88,7 +100,9 @@ export default function BudgetPage() {
             onChange={e => setProfile(p => ({ ...p, monthlySalary: e.target.value }))}
             placeholder="Monthly salary"
           />
-          <button type="submit" className="btn btn-primary">{saved ? 'Saved ✓' : 'Save'}</button>
+          <button type="submit" className="btn btn-primary" disabled={savingProfile}>
+            {saved ? 'Saved ✓' : savingProfile ? 'Saving…' : 'Save'}
+          </button>
         </form>
 
         {salary > 0 && (
@@ -116,7 +130,9 @@ export default function BudgetPage() {
             placeholder="Limit amount"
             required
           />
-          <button type="submit" className="btn btn-primary">Set Limit</button>
+          <button type="submit" className="btn btn-primary" disabled={savingLimit}>
+            {savingLimit ? 'Saving…' : 'Set Limit'}
+          </button>
         </form>
       </div>
 

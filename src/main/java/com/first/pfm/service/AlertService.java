@@ -1,6 +1,7 @@
 package com.first.pfm.service;
 
 import com.first.pfm.model.Alert;
+import com.first.pfm.model.Category;
 import com.first.pfm.model.CategoryBudget;
 import com.first.pfm.repository.AlertRepository;
 import com.first.pfm.repository.BudgetProfileRepository;
@@ -8,6 +9,7 @@ import com.first.pfm.repository.CategoryBudgetRepository;
 import com.first.pfm.repository.CategoryRepository;
 import com.first.pfm.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,6 +17,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AlertService {
@@ -40,28 +45,39 @@ public class AlertService {
     }
 
     /** Called after every expense is created/updated. */
+    @Transactional
     public void evaluate(Long userId) {
         YearMonth ym = YearMonth.now();
         LocalDate start = ym.atDay(1);
         LocalDate end = ym.atEndOfMonth();
         LocalDateTime monthStart = start.atStartOfDay();
 
-        // 1. Per-category alerts
         List<CategoryBudget> limits = categoryBudgetRepository.findByUserId(userId);
+        if (limits.isEmpty()) {
+            evaluateTotalBudget(userId, start, end, monthStart);
+            return;
+        }
+
+        // Single query for all category spending
+        Map<Long, BigDecimal> spentByCategory = expenseRepository.sumByCategoryBetween(userId, start, end)
+                .stream().collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> (BigDecimal) row[1]));
+
+        // Batch-load category names
+        Set<Long> catIds = limits.stream().map(CategoryBudget::getCategoryId).collect(Collectors.toSet());
+        Map<Long, String> catNames = categoryRepository.findAllById(catIds).stream()
+                .collect(Collectors.toMap(Category::getId, Category::getName));
+
+        // 1. Per-category alerts
         for (CategoryBudget limit : limits) {
             if (limit.getLimitAmount() == null || limit.getLimitAmount().compareTo(BigDecimal.ZERO) == 0) continue;
 
-            BigDecimal catSpent = expenseRepository.sumByCategoryBetween(userId, start, end)
-                    .stream()
-                    .filter(row -> limit.getCategoryId().equals(((Number) row[0]).longValue()))
-                    .map(row -> (BigDecimal) row[1])
-                    .findFirst().orElse(BigDecimal.ZERO);
-
+            BigDecimal catSpent = spentByCategory.getOrDefault(limit.getCategoryId(), BigDecimal.ZERO);
             double pct = catSpent.divide(limit.getLimitAmount(), 4, RoundingMode.HALF_UP)
                     .multiply(BigDecimal.valueOf(100)).doubleValue();
 
-            String catName = categoryRepository.findById(limit.getCategoryId())
-                    .map(c -> c.getName()).orElse("Unknown");
+            String catName = catNames.getOrDefault(limit.getCategoryId(), "Unknown");
 
             for (int threshold : THRESHOLDS) {
                 if (pct >= threshold) {
@@ -84,6 +100,10 @@ public class AlertService {
         }
 
         // 2. Total salary alert
+        evaluateTotalBudget(userId, start, end, monthStart);
+    }
+
+    private void evaluateTotalBudget(Long userId, LocalDate start, LocalDate end, LocalDateTime monthStart) {
         budgetProfileRepository.findByUserId(userId).ifPresent(profile -> {
             if (profile.getMonthlySalary() == null || profile.getMonthlySalary().compareTo(BigDecimal.ZERO) == 0) return;
             BigDecimal totalSpent = expenseRepository.totalBetween(userId, start, end);
@@ -119,6 +139,7 @@ public class AlertService {
         return alertRepository.findByUserIdOrderByTriggeredAtDesc(userId);
     }
 
+    @Transactional
     public void markRead(Long alertId) {
         alertRepository.findById(alertId).ifPresent(a -> {
             a.setRead(true);
@@ -126,6 +147,7 @@ public class AlertService {
         });
     }
 
+    @Transactional
     public void markAllRead(Long userId) {
         List<Alert> unread = alertRepository.findByUserIdAndReadFalseOrderByTriggeredAtDesc(userId);
         unread.forEach(a -> a.setRead(true));

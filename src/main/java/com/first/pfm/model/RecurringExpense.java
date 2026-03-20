@@ -7,7 +7,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "recurring_expenses")
+@Table(name = "recurring_expenses", indexes = {
+    @Index(name = "idx_recurring_user", columnList = "userId"),
+    @Index(name = "idx_recurring_active", columnList = "active")
+})
 @Data
 public class RecurringExpense {
 

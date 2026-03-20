@@ -3,15 +3,20 @@ package com.first.pfm.service;
 import com.first.pfm.config.SecurityUtils;
 import com.first.pfm.dto.ExpenseDto;
 import com.first.pfm.exception.ResourceNotFoundException;
+import com.first.pfm.model.Category;
 import com.first.pfm.model.Expense;
 import com.first.pfm.repository.CategoryRepository;
 import com.first.pfm.repository.ExpenseRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService {
@@ -36,8 +41,8 @@ public class ExpenseService {
         YearMonth ym = YearMonth.parse(month);
         LocalDate start = ym.atDay(1);
         LocalDate end = ym.atEndOfMonth();
-        return expenseRepository.findByUserIdAndDateBetweenOrderByDateDesc(userId, start, end)
-                .stream().map(this::toDto).toList();
+        List<Expense> expenses = expenseRepository.findByUserIdAndDateBetweenOrderByDateDesc(userId, start, end);
+        return toDtos(expenses);
     }
 
     public List<ExpenseDto> search(String month, Long categoryId, String keyword) {
@@ -46,10 +51,11 @@ public class ExpenseService {
         LocalDate start = ym.atDay(1);
         LocalDate end = ym.atEndOfMonth();
         String kw = (keyword != null && !keyword.isBlank()) ? keyword.trim() : null;
-        return expenseRepository.search(userId, categoryId, start, end, kw)
-                .stream().map(this::toDto).toList();
+        List<Expense> expenses = expenseRepository.search(userId, categoryId, start, end, kw);
+        return toDtos(expenses);
     }
 
+    @Transactional
     public ExpenseDto create(ExpenseDto dto) {
         Long userId = securityUtils.getCurrentUser().getId();
         Expense expense = new Expense();
@@ -63,6 +69,7 @@ public class ExpenseService {
         return saved;
     }
 
+    @Transactional
     public ExpenseDto update(Long id, ExpenseDto dto) {
         Long userId = securityUtils.getCurrentUser().getId();
         Expense expense = expenseRepository.findById(id)
@@ -79,6 +86,7 @@ public class ExpenseService {
         return saved;
     }
 
+    @Transactional
     public void delete(Long id) {
         Long userId = securityUtils.getCurrentUser().getId();
         Expense expense = expenseRepository.findById(id)
@@ -87,6 +95,29 @@ public class ExpenseService {
             throw new IllegalArgumentException("Access denied");
         }
         expenseRepository.delete(expense);
+    }
+
+    /** Batch-load categories for a list of expenses (avoids N+1). */
+    private List<ExpenseDto> toDtos(List<Expense> expenses) {
+        Set<Long> catIds = expenses.stream().map(Expense::getCategoryId).collect(Collectors.toSet());
+        Map<Long, Category> catMap = categoryRepository.findAllById(catIds).stream()
+                .collect(Collectors.toMap(Category::getId, c -> c));
+        return expenses.stream().map(e -> toDto(e, catMap)).toList();
+    }
+
+    private ExpenseDto toDto(Expense e, Map<Long, Category> catMap) {
+        ExpenseDto dto = new ExpenseDto();
+        dto.setId(e.getId());
+        dto.setCategoryId(e.getCategoryId());
+        dto.setAmount(e.getAmount());
+        dto.setNote(e.getNote());
+        dto.setDate(e.getDate());
+        Category cat = catMap.get(e.getCategoryId());
+        if (cat != null) {
+            dto.setCategoryName(cat.getName());
+            dto.setCategoryColor(cat.getColor());
+        }
+        return dto;
     }
 
     public ExpenseDto toDto(Expense e) {

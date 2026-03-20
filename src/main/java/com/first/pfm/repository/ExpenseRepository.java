@@ -39,4 +39,11 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
                           @Param("keyword") String keyword);
 
     List<Expense> findByUserIdOrderByDateDescCreatedAtDesc(Long userId);
+
+    @Query("SELECT DAY(e.date), SUM(e.amount) FROM Expense e WHERE e.userId = :userId AND e.date BETWEEN :start AND :end GROUP BY DAY(e.date)")
+    List<Object[]> sumByDayBetween(@Param("userId") Long userId,
+                                    @Param("start") LocalDate start,
+                                    @Param("end") LocalDate end);
+
+    List<Expense> findByUserIdAndDateBetween(Long userId, LocalDate start, LocalDate end);
 }

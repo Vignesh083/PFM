@@ -4,6 +4,7 @@ import com.first.pfm.config.SecurityUtils;
 import com.first.pfm.dto.MonthlyReportDto;
 import com.first.pfm.dto.SummaryDto;
 import com.first.pfm.model.BudgetProfile;
+import com.first.pfm.model.Category;
 import com.first.pfm.repository.BudgetProfileRepository;
 import com.first.pfm.repository.CategoryRepository;
 import com.first.pfm.repository.ExpenseRepository;
@@ -16,6 +17,8 @@ import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportService {
@@ -44,27 +47,33 @@ public class ReportService {
         BigDecimal total = expenseRepository.totalBetween(userId, start, end);
         if (total == null) total = BigDecimal.ZERO;
 
-        // category breakdown
+        // category breakdown — batch-load categories in one query
         List<Object[]> rows = expenseRepository.sumByCategoryBetween(userId, start, end);
+        Set<Long> catIds = rows.stream().map(row -> ((Number) row[0]).longValue()).collect(Collectors.toSet());
+        Map<Long, Category> catMap = categoryRepository.findAllById(catIds).stream()
+                .collect(Collectors.toMap(Category::getId, c -> c));
+
         BigDecimal finalTotal = total;
         List<SummaryDto.CategoryBreakdown> breakdown = rows.stream().map(row -> {
             Long catId = ((Number) row[0]).longValue();
             BigDecimal amount = (BigDecimal) row[1];
             String name = "Unknown"; String color = "#6366f1";
-            var cat = categoryRepository.findById(catId);
-            if (cat.isPresent()) { name = cat.get().getName(); color = cat.get().getColor() != null ? cat.get().getColor() : color; }
+            Category cat = catMap.get(catId);
+            if (cat != null) { name = cat.getName(); color = cat.getColor() != null ? cat.getColor() : color; }
             double pct = finalTotal.compareTo(BigDecimal.ZERO) > 0
                     ? amount.divide(finalTotal, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).doubleValue() : 0;
             return new SummaryDto.CategoryBreakdown(catId, name, color, amount, pct);
         }).toList();
 
-        // daily totals
+        // daily totals — single query instead of N queries
         Map<String, BigDecimal> dailyTotals = new LinkedHashMap<>();
         for (int d = 1; d <= ym.lengthOfMonth(); d++) {
-            LocalDate day = ym.atDay(d);
-            BigDecimal dayTotal = expenseRepository.totalBetween(userId, day, day);
-            dailyTotals.put(String.valueOf(d), dayTotal != null ? dayTotal : BigDecimal.ZERO);
+            dailyTotals.put(String.valueOf(d), BigDecimal.ZERO);
         }
+        expenseRepository.sumByDayBetween(userId, start, end)
+                .forEach(row -> dailyTotals.put(
+                        String.valueOf(((Number) row[0]).intValue()),
+                        (BigDecimal) row[1]));
 
         BigDecimal salary = budgetProfileRepository.findByUserId(userId)
                 .map(BudgetProfile::getMonthlySalary)
@@ -81,10 +90,15 @@ public class ReportService {
         LocalDate end = ym.atEndOfMonth();
 
         var expenses = expenseRepository.findByUserIdAndDateBetweenOrderByDateDesc(userId, start, end);
+
+        // Batch-load categories in one query
+        Set<Long> catIds = expenses.stream().map(e -> e.getCategoryId()).collect(Collectors.toSet());
+        Map<Long, String> catNames = categoryRepository.findAllById(catIds).stream()
+                .collect(Collectors.toMap(Category::getId, Category::getName));
+
         StringBuilder sb = new StringBuilder("Date,Category,Amount,Note\n");
         for (var e : expenses) {
-            String catName = categoryRepository.findById(e.getCategoryId())
-                    .map(c -> c.getName()).orElse("Unknown");
+            String catName = catNames.getOrDefault(e.getCategoryId(), "Unknown");
             String note = e.getNote() != null ? e.getNote().replace(",", ";") : "";
             sb.append(e.getDate()).append(",")
               .append(catName).append(",")

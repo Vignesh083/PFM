@@ -6,7 +6,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "alerts")
+@Table(name = "alerts", indexes = {
+    @Index(name = "idx_alert_user_read", columnList = "userId,read"),
+    @Index(name = "idx_alert_dedup", columnList = "userId,categoryId,thresholdPercent,triggeredAt")
+})
 @Data
 public class Alert {
 

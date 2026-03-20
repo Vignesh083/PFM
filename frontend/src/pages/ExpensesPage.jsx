@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getExpenses, deleteExpense } from '../api/expenses';
 import { getCategories } from '../api/categories';
@@ -46,11 +46,23 @@ export default function ExpensesPage() {
     setLoading(true);
     getExpenses(m, cat || undefined, kw || undefined)
       .then(r => setExpenses(r.data))
+      .catch(() => setExpenses([]))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { getCategories().then(r => setCategories(r.data)); }, []);
-  useEffect(() => { load(month, filterCat, search); }, [month, filterCat, search]);
+  // Debounce search: only fire load after 350ms of no typing
+  const debounceRef = useRef(null);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedSearch(val), 350);
+  };
+
+  useEffect(() => { getCategories().then(r => setCategories(r.data)).catch(() => {}); }, []);
+  useEffect(() => { load(month, filterCat, debouncedSearch); }, [month, filterCat, debouncedSearch]);
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this expense?')) return;
@@ -82,7 +94,7 @@ export default function ExpensesPage() {
           type="text"
           placeholder="🔍 Search by note..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={handleSearchChange}
         />
         <select
           className="filter-cat"
@@ -95,7 +107,7 @@ export default function ExpensesPage() {
           ))}
         </select>
         {(search || filterCat) && (
-          <button className="btn btn-ghost" onClick={() => { setSearch(''); setFilterCat(''); }}>
+          <button className="btn btn-ghost" onClick={() => { setSearch(''); setDebouncedSearch(''); setFilterCat(''); }}>
             Clear
           </button>
         )}

@@ -2,6 +2,7 @@ package com.first.pfm.service;
 
 import com.first.pfm.config.SecurityUtils;
 import com.first.pfm.dto.SummaryDto;
+import com.first.pfm.model.Category;
 import com.first.pfm.repository.CategoryRepository;
 import com.first.pfm.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,9 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class SummaryService {
@@ -51,17 +55,24 @@ public class SummaryService {
         if (total == null) total = BigDecimal.ZERO;
 
         List<Object[]> rows = expenseRepository.sumByCategoryBetween(userId, start, end);
-        BigDecimal finalTotal = total;
 
+        // Batch-load all categories in one query
+        Set<Long> catIds = rows.stream()
+                .map(row -> ((Number) row[0]).longValue())
+                .collect(Collectors.toSet());
+        Map<Long, Category> catMap = categoryRepository.findAllById(catIds).stream()
+                .collect(Collectors.toMap(Category::getId, c -> c));
+
+        BigDecimal finalTotal = total;
         List<SummaryDto.CategoryBreakdown> breakdown = rows.stream().map(row -> {
             Long catId = ((Number) row[0]).longValue();
             BigDecimal amount = (BigDecimal) row[1];
             String name = "Unknown";
             String color = "#6366f1";
-            var cat = categoryRepository.findById(catId);
-            if (cat.isPresent()) {
-                name = cat.get().getName();
-                color = cat.get().getColor() != null ? cat.get().getColor() : color;
+            Category cat = catMap.get(catId);
+            if (cat != null) {
+                name = cat.getName();
+                color = cat.getColor() != null ? cat.getColor() : color;
             }
             double pct = finalTotal.compareTo(BigDecimal.ZERO) > 0
                     ? amount.divide(finalTotal, 4, RoundingMode.HALF_UP)
