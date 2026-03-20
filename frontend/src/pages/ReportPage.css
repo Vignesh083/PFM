@@ -106,3 +106,9 @@
   border-radius: 999px;
   transition: width 0.6s ease;
 }
+
+@media (max-width: 768px) {
+  .report-stats { grid-template-columns: 1fr; }
+  .report-table { font-size: 0.78rem; }
+  .report-table th:last-child, .report-table td:last-child { display: none; }
+}

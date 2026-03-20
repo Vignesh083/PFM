@@ -3,6 +3,7 @@ import { getMonthlyReport, downloadCSV } from '../api/reports';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
+import Loader from '../components/Loader';
 import './ReportPage.css';
 
 function fmt(v, currency = 'INR') {
@@ -68,7 +69,7 @@ export default function ReportPage() {
         <button className="btn btn-ghost" onClick={() => setMonth(nextMonth(month))}>›</button>
       </div>
 
-      {loading ? <p className="empty-state">Loading...</p> : !report ? null : (
+      {loading ? <Loader /> : !report ? null : (
         <>
           {/* Summary cards */}
           <div className="report-stats">

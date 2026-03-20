@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getExpenses, deleteExpense } from '../api/expenses';
 import { getCategories } from '../api/categories';
+import Loader from '../components/Loader';
 import './ExpensesPage.css';
 
 function monthLabel(m) {
@@ -101,7 +102,7 @@ export default function ExpensesPage() {
       </div>
 
       {loading ? (
-        <p className="empty-state">Loading...</p>
+        <Loader />
       ) : expenses.length === 0 ? (
         <p className="empty-state">No expenses found.</p>
       ) : (

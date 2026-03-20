@@ -62,3 +62,9 @@ body {
 
 /* ── Selection ── */
 ::selection { background: rgba(139,92,246,0.3); color: #fff; }
+
+@media (max-width: 768px) {
+  .page-title { font-size: 1.3rem; }
+  .card { padding: 1rem; border-radius: 12px; }
+  .page-header { margin-bottom: 1rem; }
+}

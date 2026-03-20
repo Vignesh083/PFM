@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getBudgetProfile, saveBudgetProfile, getBudgetComparison, setCategoryBudget, deleteCategoryBudget } from '../api/budget';
 import { getCategories } from '../api/categories';
+import Loader from '../components/Loader';
 import './BudgetPage.css';
 
 function fmt(v, currency = 'INR') {
@@ -27,21 +28,25 @@ export default function BudgetPage() {
   const [editCatId, setEditCatId] = useState('');
   const [limitInput, setLimitInput] = useState('');
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const load = () => {
-    getBudgetProfile().then(r => setProfile(r.data)).catch(() => {});
-    getBudgetComparison(month).then(r => setComparison(r.data)).catch(() => {});
-    getCategories().then(r => setCategories(r.data)).catch(() => {});
+  const load = (showLoader = false) => {
+    if (showLoader) setLoading(true);
+    Promise.all([
+      getBudgetProfile().then(r => setProfile(r.data)).catch(() => {}),
+      getBudgetComparison(month).then(r => setComparison(r.data)).catch(() => {}),
+      getCategories().then(r => setCategories(r.data)).catch(() => {}),
+    ]).finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(true); }, []);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     await saveBudgetProfile({ monthlySalary: parseFloat(profile.monthlySalary), currency: profile.currency });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
-    load();
+    load(false);
   };
 
   const handleSetLimit = async (e) => {
@@ -59,6 +64,8 @@ export default function BudgetPage() {
 
   const salary = parseFloat(profile?.monthlySalary) || 0;
   const totalSpent = comparison.reduce((s, c) => s + parseFloat(c.spent || 0), 0);
+
+  if (loading) return <Loader fullPage />;
 
   return (
     <div>

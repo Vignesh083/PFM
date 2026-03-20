@@ -91,6 +91,13 @@ export default function Layout() {
 
   return (
     <div className="app-shell">
+      {/* ── Mobile top bar (hidden on desktop) ── */}
+      <div className="mobile-topbar">
+        <div className="mobile-brand">PFM</div>
+        <AlertBell />
+      </div>
+
+      {/* ── Desktop sidebar ── */}
       <aside className="sidebar">
         <div className="sidebar-top">
           <div className="sidebar-brand">PFM</div>
@@ -112,9 +119,29 @@ export default function Layout() {
           🚪 Logout
         </button>
       </aside>
+
+      {/* ── Page content ── */}
       <main className="main-content">
         <Outlet />
       </main>
+
+      {/* ── Mobile bottom navigation (hidden on desktop) ── */}
+      <nav className="mobile-bottom-nav">
+        {NAV.map((n) => (
+          <NavLink
+            key={n.to}
+            to={n.to}
+            className={({ isActive }) => 'mob-nav-item' + (isActive ? ' active' : '')}
+          >
+            <span className="mob-nav-icon">{n.icon}</span>
+            <span className="mob-nav-label">{n.label}</span>
+          </NavLink>
+        ))}
+        <button className="mob-nav-logout" onClick={logout}>
+          <span className="mob-nav-icon">🚪</span>
+          <span className="mob-nav-label">Logout</span>
+        </button>
+      </nav>
     </div>
   );
 }

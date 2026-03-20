@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login, register } from './api/auth';
 import './AuthPage.css';
+import './components/Loader.css';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -10,24 +11,29 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const clear = () => { setError(''); setSuccess(''); };
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     clear();
+    setLoading(true);
     try {
       const res = await login(username, password);
       localStorage.setItem('token', res.data.token);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || err.response?.data || 'Invalid credentials');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     clear();
+    setLoading(true);
     try {
       await register(username, password);
       setSuccess('Account created! You can now sign in.');
@@ -36,6 +42,8 @@ export default function AuthPage() {
       setPassword('');
     } catch (err) {
       setError(err.response?.data?.error || err.response?.data || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,8 +74,8 @@ export default function AuthPage() {
           {error && <p className="msg error">{error}</p>}
           {success && <p className="msg success">{success}</p>}
 
-          <button type="submit" className="btn-primary">
-            {tab === 'signin' ? 'Sign In' : 'Create Account'}
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? <span className="btn-spinner" /> : (tab === 'signin' ? 'Sign In' : 'Create Account')}
           </button>
         </form>
       </div>

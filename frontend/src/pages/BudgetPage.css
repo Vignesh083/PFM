@@ -100,3 +100,11 @@
   filter: blur(2px);
   border-radius: 999px;
 }
+
+@media (max-width: 768px) {
+  .salary-form { flex-direction: column; }
+  .salary-form input, .salary-form select, .salary-form button { width: 100%; }
+  .limit-form { flex-direction: column; }
+  .limit-form input, .limit-form select, .limit-form button { width: 100%; }
+  .salary-overview { flex-direction: column; gap: 0.5rem; }
+}

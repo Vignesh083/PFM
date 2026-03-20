@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getCategories, createCategory, deleteCategory } from '../api/categories';
+import Loader from '../components/Loader';
 import './CategoriesPage.css';
 
 const COLORS = ['#f97316','#eab308','#22c55e','#3b82f6','#a855f7','#ec4899','#06b6d4','#64748b','#ef4444'];
@@ -10,8 +11,9 @@ export default function CategoriesPage() {
   const [color, setColor] = useState(COLORS[0]);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const load = () => getCategories().then(r => setCategories(r.data));
+  const load = () => getCategories().then(r => setCategories(r.data)).finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const handleCreate = async (e) => {
@@ -39,6 +41,8 @@ export default function CategoriesPage() {
 
   const defaults = categories.filter(c => c.default);
   const custom = categories.filter(c => !c.default);
+
+  if (loading) return <Loader fullPage />;
 
   return (
     <div>

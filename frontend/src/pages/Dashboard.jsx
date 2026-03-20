@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getDailySummary, getMonthlySummary, getYearlySummary } from '../api/summary';
 import { getBudgetProfile } from '../api/budget';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import Loader from '../components/Loader';
 import './Dashboard.css';
 
 function fmt(amount, currency = 'INR') {
@@ -101,17 +102,22 @@ export default function Dashboard() {
   const [monthly, setMonthly] = useState(null);
   const [yearly, setYearly] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getDailySummary(dateStr).then(r => setDaily(r.data)).catch(() => {});
-    getMonthlySummary(month).then(r => setMonthly(r.data)).catch(() => {});
-    getYearlySummary(today.getFullYear()).then(r => setYearly(r.data)).catch(() => {});
-    getBudgetProfile().then(r => setProfile(r.data)).catch(() => {});
+    Promise.all([
+      getDailySummary(dateStr).then(r => setDaily(r.data)).catch(() => {}),
+      getMonthlySummary(month).then(r => setMonthly(r.data)).catch(() => {}),
+      getYearlySummary(today.getFullYear()).then(r => setYearly(r.data)).catch(() => {}),
+      getBudgetProfile().then(r => setProfile(r.data)).catch(() => {}),
+    ]).finally(() => setLoading(false));
   }, []);
 
   const currency = profile?.currency || 'INR';
   const salary = parseFloat(profile?.monthlySalary ?? 0);
   const monthSpent = parseFloat(monthly?.total ?? 0);
+
+  if (loading) return <Loader fullPage />;
 
   return (
     <div>

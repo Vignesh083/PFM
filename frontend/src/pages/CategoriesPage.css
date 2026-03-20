@@ -96,3 +96,7 @@
   transition: opacity 0.2s;
 }
 .cat-delete:hover { opacity: 1; }
+
+@media (max-width: 768px) {
+  .cat-grid { grid-template-columns: repeat(2, 1fr); }
+}
