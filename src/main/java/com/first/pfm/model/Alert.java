@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "alerts", indexes = {
-    @Index(name = "idx_alert_user_read", columnList = "userId,read"),
-    @Index(name = "idx_alert_dedup", columnList = "userId,categoryId,thresholdPercent,triggeredAt")
+    @Index(name = "idx_alert_user_read", columnList = "user_id,is_read"),
+    @Index(name = "idx_alert_dedup", columnList = "user_id,category_id,threshold_percent,triggered_at")
 })
 @Data
 public class Alert {
@@ -28,6 +28,7 @@ public class Alert {
 
     private String message;
 
+    @Column(name = "is_read")
     private boolean read = false;
 
     private LocalDateTime triggeredAt;

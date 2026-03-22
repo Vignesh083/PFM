@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "category_budgets", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"userId", "categoryId"})
+        @UniqueConstraint(columnNames = {"user_id", "category_id"})
 })
 @Data
 public class CategoryBudget {

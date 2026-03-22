@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "expenses", indexes = {
-    @Index(name = "idx_expense_user_date", columnList = "userId,date"),
-    @Index(name = "idx_expense_user_cat", columnList = "userId,categoryId")
+    @Index(name = "idx_expense_user_date", columnList = "user_id,date"),
+    @Index(name = "idx_expense_user_cat", columnList = "user_id,category_id")
 })
 @Data
 public class Expense {
