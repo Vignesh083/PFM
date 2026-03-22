@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PFM</string>
+    <string name="title_activity_main">PFM</string>
+    <string name="package_name">com.pfm.app</string>
+    <string name="custom_url_scheme">com.pfm.app</string>
+</resources>
