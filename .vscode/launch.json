@@ -3,10 +3,11 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Debug Spring Boot (StartApplication)",
+      "name": "Run Spring Boot (local DB)",
       "request": "launch",
       "mainClass": "com.first.pfm.main.StartApplication",
-      "projectName": "first.pfm"
+      "projectName": "first.pfm",
+      "vmArgs": "-Dspring.profiles.active=local"
     },
     {
       "type": "java",
